@@ -48,6 +48,7 @@ public class ChatFilter extends JavaPlugin {
 
     private static TaskScheduler scheduler;
     private static ChatFilter instance;
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
     public ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
     public ChatFilter chatFilter;
@@ -251,8 +252,8 @@ public class ChatFilter extends JavaPlugin {
         if (manager.supported("hex")) {
             return Manager.colorStringHex(s);
         } else {
-            return LegacyComponentSerializer.legacyAmpersand().serialize(
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(s)
+            return LEGACY_SERIALIZER.serialize(
+                    LEGACY_SERIALIZER.deserialize(s)
             );
         }
     }
