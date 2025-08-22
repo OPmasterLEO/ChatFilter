@@ -12,8 +12,13 @@ import a4.papers.chatfilter.chatfilter.shared.UnicodeWrapper;
 import a4.papers.chatfilter.chatfilter.shared.lang.LangManager;
 import a4.papers.chatfilter.chatfilter.shared.regexHandler.LoadFilters;
 import a4.papers.chatfilter.chatfilter.shared.regexHandler.RegexpGenerator;
+
+import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
+
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,7 +43,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("deprecation")
 public class ChatFilter extends JavaPlugin {
+
+    private static TaskScheduler scheduler;
+    private static ChatFilter instance;
 
     public ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
     public ChatFilter chatFilter;
@@ -132,6 +141,10 @@ public class ChatFilter extends JavaPlugin {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
+        scheduler = UniversalScheduler.getScheduler(this);
+        instance = this;
+
         createCustomConfig();
         loadVariables();
         getCommand("chatfilter").setExecutor(new CommandMain(this));
@@ -236,9 +249,11 @@ public class ChatFilter extends JavaPlugin {
 
     public String colour(String s) {
         if (manager.supported("hex")) {
-            return manager.colorStringHex(s);
+            return Manager.colorStringHex(s);
         } else {
-            return ChatColor.translateAlternateColorCodes('&', s);
+            return LegacyComponentSerializer.legacyAmpersand().serialize(
+                    LegacyComponentSerializer.legacyAmpersand().deserialize(s)
+            );
         }
     }
 
@@ -348,5 +363,36 @@ public class ChatFilter extends JavaPlugin {
         advertConfig.load(advertConfigFile);
         wordConfig.load(wordConfigFile);
         unicodeConfig.load(unicodeConfigFile);
+    }
+
+    public static Object runTask(Runnable runnable) {
+        if (scheduler != null) {
+            return scheduler.runTask(runnable);
+        } else {
+            Bukkit.getScheduler().runTask(instance, runnable);
+            return null;
+        }
+    }
+
+    public static Object runTaskLater(Runnable runnable, long delay) {
+        if (scheduler != null) {
+            return scheduler.runTaskLater(runnable, delay);
+        } else {
+            Bukkit.getScheduler().runTaskLater(instance, runnable, delay);
+            return null;
+        }
+    }
+
+    public static Object runTaskTimer(Runnable runnable, long delay, long period) {
+        if (scheduler != null) {
+            return scheduler.runTaskTimer(runnable, delay, period);
+        } else {
+            Bukkit.getScheduler().runTaskTimer(instance, runnable, delay, period);
+            return null;
+        }
+    }
+
+    public static TaskScheduler getScheduler() {
+        return scheduler;
     }
 }

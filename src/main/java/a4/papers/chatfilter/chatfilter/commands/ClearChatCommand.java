@@ -2,7 +2,6 @@ package a4.papers.chatfilter.chatfilter.commands;
 
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
-import a4.papers.chatfilter.chatfilter.shared.lang.LangManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
