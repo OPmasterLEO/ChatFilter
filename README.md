@@ -41,9 +41,9 @@ Chat Filter is a chat management plugin for reducing spam, swearing, advertiseme
 - `chatfilter.bypass.caps` –Allows the player to bypass chat decapping
 - `chatfilter.bypass.pause` – Allows the player to bypass paused chat
 - `chatfilter.bypass.swear` – Allows the player to bypass all swear filters (chat ,books, commands etc)
-- chatfilter.bypass.swear.<config entry>` – Allows the player to bypass set config entries (chat ,books, commands etc)
-- chatfilter.bypass.ip.<config entry>` – Allows the player to bypass set config entries (chat ,books, commands etc)
-chatfilter.bypass.ip` – Allows the player to bypass all ip filters (chat ,books, commands etc)
+- `chatfilter.bypass.swear.<config entry>` – Allows the player to bypass set config entries (chat ,books, commands etc)
+- `chatfilter.bypass.ip.<config entry>` – Allows the player to bypass set config entries (chat ,books, commands etc)
+- `chatfilter.bypass.ip` – Allows the player to bypass all ip filters (chat ,books, commands etc)
 
 # DISCLAIMER
 This fork implements Folia with minimal code changes.
