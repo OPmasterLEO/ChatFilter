@@ -1,5 +1,12 @@
 package a4.papers.chatfilter.chatfilter.commands;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 import net.md_5.bungee.api.ChatColor;
@@ -7,12 +14,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-
-import java.util.Collections;
-import java.util.List;
 
 public class WhitelistCommand implements CommandExecutor {
 
@@ -92,7 +93,12 @@ public class WhitelistCommand implements CommandExecutor {
                     return true;
                 }
                 if (args[2].equals("ip") && args.length > 3) {
-                    String ArgsString = String.join(" ", args).toLowerCase().replaceAll("whitelist add ip ", "");
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 3; i < args.length; i++) {
+                        if (i > 3) sb.append(' ');
+                        sb.append(args[i]);
+                    }
+                    String ArgsString = sb.toString().toLowerCase();
                     List<String> list = chatFilter.getWhitelistConfig().getStringList("bypassIP");
                     if (list.contains(ArgsString)) {
                         sender.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.CMD_WHITELIST_ADD_IP_NO.s).replace("%ip%", ArgsString)));
@@ -107,7 +113,12 @@ public class WhitelistCommand implements CommandExecutor {
                     }
                 }
                 if (args[2].equals("word") && args.length > 3) {
-                    String ArgsString = String.join(" ", args).toLowerCase().replaceAll("whitelist add word ", "");
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 3; i < args.length; i++) {
+                        if (i > 3) sb.append(' ');
+                        sb.append(args[i]);
+                    }
+                    String ArgsString = sb.toString().toLowerCase();
                     List<String> list = chatFilter.getWhitelistConfig().getStringList("bypassWords");
                     if (list.contains(ArgsString)) {
                         sender.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.CMD_WHITELIST_ADD_WORD_NO.s).replace("%word%", ArgsString)));
@@ -141,7 +152,12 @@ public class WhitelistCommand implements CommandExecutor {
                         sender.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.NO_PERMISSION.s)));
                         return true;
                     }
-                    String ArgsString = String.join(" ", args).toLowerCase().replaceAll("whitelist remove word ", "");
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 3; i < args.length; i++) {
+                        if (i > 3) sb.append(' ');
+                        sb.append(args[i]);
+                    }
+                    String ArgsString = sb.toString().toLowerCase();
                     List<String> list = chatFilter.getWhitelistConfig().getStringList("bypassWords");
                     if (!list.contains(ArgsString)) {
                         sender.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.CMD_WHITELIST_REMOVE_WORD_NO.s).replace("%word%", ArgsString)));

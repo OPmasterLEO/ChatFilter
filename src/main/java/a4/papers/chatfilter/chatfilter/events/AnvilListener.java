@@ -1,14 +1,11 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
-import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
-import a4.papers.chatfilter.chatfilter.shared.Result;
-import a4.papers.chatfilter.chatfilter.shared.Types;
-import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
@@ -16,6 +13,12 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.EventExecutor;
+
+import a4.papers.chatfilter.chatfilter.ChatFilter;
+import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
+import a4.papers.chatfilter.chatfilter.shared.Result;
+import a4.papers.chatfilter.chatfilter.shared.Types;
+import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 
 public class AnvilListener implements EventExecutor, Listener {
 
@@ -82,8 +85,9 @@ public class AnvilListener implements EventExecutor, Listener {
                                             if (filterWrapper.getLogToConsole())
                                                 chatFilter.sendConsole(type, displayName, p, filterWrapper.getRegex(), "Anvil");
                                             if (filterWrapper.getSendStaff()) {
-                                                for (String oneWord : chatFilter.getChatFilters().validResult(displayName, p).getStringArray()) {
-                                                    displayName = displayName.replace(oneWord, chatFilter.colour(chatFilter.settingsSwearHighLight.replace("%catch%", oneWord)));
+                                                String highlightColored = chatFilter.colour(chatFilter.settingsSwearHighLight);
+                                                for (String oneWord : stringArray) {
+                                                    displayName = displayName.replace(oneWord, highlightColored.replace("%catch%", oneWord));
                                                 }
                                                 chatFilter.sendStaffMessage(chatFilter.colour(prefix + displayName));
                                             }

@@ -1,14 +1,15 @@
 package a4.papers.chatfilter.chatfilter;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 public class Manager {
 
     ChatFilter chatFilter;
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#" + "([A-Fa-f0-9]{6})");
 
     public Manager(ChatFilter instance) {
         chatFilter = instance;
@@ -30,8 +31,7 @@ public class Manager {
     }
 
     public static String colorStringHex(String msg) {
-        final Pattern hexPattern = Pattern.compile("&#" + "([A-Fa-f0-9]{6})");
-        Matcher matcher = hexPattern.matcher(msg);
+        Matcher matcher = HEX_PATTERN.matcher(msg);
         StringBuffer buffer = new StringBuffer(msg.length() + 4 * 8);
         while (matcher.find()) {
             String group = matcher.group(1);

@@ -1,10 +1,9 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
-import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
-import a4.papers.chatfilter.chatfilter.shared.Result;
-import a4.papers.chatfilter.chatfilter.shared.Types;
-import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -15,9 +14,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import a4.papers.chatfilter.chatfilter.ChatFilter;
+import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
+import a4.papers.chatfilter.chatfilter.shared.Result;
+import a4.papers.chatfilter.chatfilter.shared.Types;
+import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 
 public class BooksListener implements EventExecutor, Listener {
     ChatFilter chatFilter;
@@ -98,9 +99,10 @@ public class BooksListener implements EventExecutor, Listener {
             }
             if (filterWrapper.getSendStaff()) {
                 chatFilter.sendStaffMessage(chatFilter.colour(prefix));
+                String highlightColored = chatFilter.colour(chatFilter.settingsSwearHighLight);
                 for (String page : bookPageMatch) {
                     for (String oneWord : catchMatch) {
-                        page = page.replace(oneWord, chatFilter.colour(chatFilter.settingsSwearHighLight.replace("%catch%", oneWord)));
+                        page = page.replace(oneWord, highlightColored.replace("%catch%", oneWord));
                     }
                     chatFilter.sendStaffMessage(page);
                 }

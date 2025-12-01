@@ -10,7 +10,7 @@ public class RegexpGenerator {
     }
 
     public String generateRegexp(String s) {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder(s.length() * 15);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             String chars = String.valueOf(c);
@@ -43,9 +43,11 @@ public class RegexpGenerator {
     }
 
     String toLeetSpeak(String speak) {
-        StringBuilder sb = new StringBuilder(speak.length());
-        if (chatFilter.enableLeetSpeak)
-            for (char c : speak.toCharArray()) {
+        if (!chatFilter.enableLeetSpeak) {
+            return speak;
+        }
+        StringBuilder sb = new StringBuilder(speak.length() * 2);
+        for (char c : speak.toCharArray()) {
                 switch (c) {
                     case 'a':
                         sb.append("@|a|4");
@@ -129,7 +131,7 @@ public class RegexpGenerator {
                         sb.append(c);
                         break;
                 }
-            }
+        }
         return sb.toString();
     }
 }

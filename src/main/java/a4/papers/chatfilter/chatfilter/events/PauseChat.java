@@ -1,11 +1,17 @@
 package a4.papers.chatfilter.chatfilter.events;
 
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
-import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
-import org.bukkit.event.*;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+
+import a4.papers.chatfilter.chatfilter.ChatFilter;
+import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 
 public class PauseChat implements EventExecutor, Listener {
     ChatFilter chatFilter;
@@ -20,18 +26,17 @@ public class PauseChat implements EventExecutor, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChatPause(AsyncPlayerChatEvent event) {
-        if (event.isCancelled())
+        if (event.isCancelled() || !chatFilter.chatPause)
             return;
-        if (chatFilter.chatPause) {
-            if (event.getPlayer().hasPermission("chatfilter.bypass") || event.getPlayer().hasPermission("chatfilter.pause") || event.getPlayer().hasPermission("chatfilter.bypass.pause")) {
-            } else {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.denyMessagePause.s)));
-                chatFilter.logMsg("[Chat filter] (Paused chat) " + event.getPlayer().getDisplayName() + ": " + event.getMessage());
-            }
-
+        
+        Player player = event.getPlayer();
+        if (player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.pause") || player.hasPermission("chatfilter.bypass.pause")) {
+            return;
         }
-
+        
+        event.setCancelled(true);
+        player.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.denyMessagePause.s)));
+        chatFilter.logMsg("[Chat filter] (Paused chat) " + player.getDisplayName() + ": " + event.getMessage());
     }
 
 }

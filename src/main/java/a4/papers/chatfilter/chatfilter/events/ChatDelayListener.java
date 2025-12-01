@@ -21,11 +21,18 @@ import java.util.UUID;
 public class ChatDelayListener implements EventExecutor, Listener {
     public Map<UUID, ChatData> chatmsgs = new HashMap<UUID, ChatData>();
     ChatFilter chatFilter;
-    private HashMap<UUID, String> chatMSG = new HashMap<>();
-    private HashMap<UUID, Long> cooldown = new HashMap<>();
+    private BigDecimal similarityThreshold;
 
     public ChatDelayListener(ChatFilter instance) {
         chatFilter = instance;
+    }
+    
+    private BigDecimal getSimilarityThreshold() {
+        if (similarityThreshold == null) {
+            String percent = chatFilter.percentage.trim().replace("%", "");
+            similarityThreshold = new BigDecimal(percent).divide(BigDecimal.valueOf(100));
+        }
+        return similarityThreshold;
     }
 
     @Override
@@ -38,38 +45,38 @@ public class ChatDelayListener implements EventExecutor, Listener {
         if (!chatFilter.antiRepeatEnabled) {
             return;
         }
-        if (e.getPlayer().hasPermission("chatfilter.bypass") || e.getPlayer().hasPermission("chatfilter.bypass.repeat"))
-            return;
+        
         Player p = e.getPlayer();
+        if (p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.repeat")) {
+            return;
+        }
+        
         UUID playerUUID = p.getUniqueId();
         String msg = e.getMessage();
-        chatmsgs.containsKey(playerUUID);
+        long currentTime = System.currentTimeMillis();
         long configtime = chatFilter.repeatDelay * 1000L;
-        if (!p.hasPermission("chatfilter.bypass") || !e.getPlayer().hasPermission("chatfilter.bypass.repeat") && chatFilter.antiRepeatEnabled) {
-            if (chatmsgs.containsKey(playerUUID)) {
-                long time = chatmsgs.get(playerUUID).getLong();
-                double sim = StringSimilarity.similarity(msg, chatmsgs.get(playerUUID).getString());
-                BigDecimal d = new BigDecimal(chatFilter.percentage.trim().replace("%", "")).divide(BigDecimal.valueOf(100));
-                if (sim > d.doubleValue()) {
-                    if (time > System.currentTimeMillis()) {
-                        e.setCancelled(true);
-                        int remainingTime = Math.round((this.chatmsgs.get(playerUUID).getLong() - System.currentTimeMillis()) / 1000 * 10) / 10;
-                        String timeString = "";
-                        if (remainingTime >= 2) {
-                            timeString = remainingTime + " seconds";
-                        } else {
-                            timeString = 1 + " second";
-                        }
-                        p.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.chatRepeatMessage.s).replace("%time%", timeString)));
-                    } else {
-                        chatmsgs.put(playerUUID, new ChatData(msg, System.currentTimeMillis() + configtime));
-                    }
-                } else {
-                    chatmsgs.remove(playerUUID);
-                }
+        
+        ChatData chatData = chatmsgs.get(playerUUID);
+        if (chatData == null) {
+            chatmsgs.put(playerUUID, new ChatData(msg, currentTime + configtime));
+            return;
+        }
+        
+        long expiryTime = chatData.getLong();
+        double sim = StringSimilarity.similarity(msg, chatData.getString());
+        
+        if (sim > getSimilarityThreshold().doubleValue()) {
+            if (expiryTime > currentTime) {
+                e.setCancelled(true);
+                long remainingMs = expiryTime - currentTime;
+                int remainingTime = (int) Math.ceil(remainingMs / 1000.0);
+                String timeString = remainingTime >= 2 ? remainingTime + " seconds" : "1 second";
+                p.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.chatRepeatMessage.s).replace("%time%", timeString)));
             } else {
-                chatmsgs.put(playerUUID, new ChatData(msg, System.currentTimeMillis() + configtime));
+                chatmsgs.put(playerUUID, new ChatData(msg, currentTime + configtime));
             }
+        } else {
+            chatmsgs.put(playerUUID, new ChatData(msg, currentTime + configtime));
         }
     }
 }

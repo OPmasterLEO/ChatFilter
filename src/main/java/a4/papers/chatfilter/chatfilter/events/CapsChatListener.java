@@ -1,14 +1,14 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import a4.papers.chatfilter.chatfilter.ChatFilter;
 
 public class CapsChatListener implements EventExecutor, Listener {
 
@@ -51,12 +51,6 @@ public class CapsChatListener implements EventExecutor, Listener {
     }
 
     public boolean isURL(String str) {
-        boolean matched = false;
-        Pattern p = Pattern.compile(chatFilter.URL_REGEX);
-        Matcher m = p.matcher(str);
-        if (m.find()) {
-            matched = true;
-        }
-        return matched;
+        return chatFilter.urlPattern.matcher(str).find();
     }
 }

@@ -1,13 +1,6 @@
 package a4.papers.chatfilter.chatfilter.events;
 
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
-import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
-import a4.papers.chatfilter.chatfilter.shared.LowerCaseReplace;
-import a4.papers.chatfilter.chatfilter.shared.Result;
-import a4.papers.chatfilter.chatfilter.shared.Types;
-import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -15,6 +8,13 @@ import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+
+import a4.papers.chatfilter.chatfilter.ChatFilter;
+import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
+import a4.papers.chatfilter.chatfilter.shared.LowerCaseReplace;
+import a4.papers.chatfilter.chatfilter.shared.Result;
+import a4.papers.chatfilter.chatfilter.shared.Types;
+import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
 
 public class SwearChatListener implements EventExecutor, Listener {
 
@@ -76,8 +76,9 @@ public class SwearChatListener implements EventExecutor, Listener {
             if (filterWrapper.getWarnPlayer())
                 p.sendMessage(chatFilter.colour(warnPlayerMessage));
             if (filterWrapper.getSendStaff()) {
+                String highlightColored = chatFilter.colour(chatFilter.settingsSwearHighLight);
                 for (String oneWord : stringArray) {
-                    chatMessage = chatMessage.replace(oneWord, chatFilter.colour(chatFilter.settingsSwearHighLight.replace("%catch%", oneWord)));
+                    chatMessage = chatMessage.replace(oneWord, highlightColored.replace("%catch%", oneWord));
                 }
                 chatFilter.sendStaffMessage(chatFilter.colour(prefix + chatMessage));
             }

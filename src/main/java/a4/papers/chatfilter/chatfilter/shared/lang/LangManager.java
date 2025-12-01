@@ -1,12 +1,16 @@
 package a4.papers.chatfilter.chatfilter.shared.lang;
 
-import a4.papers.chatfilter.chatfilter.ChatFilter;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import a4.papers.chatfilter.chatfilter.ChatFilter;
 
 public class LangManager {
 
@@ -26,16 +30,18 @@ public class LangManager {
     }
 
     public String stringArrayToString(String[] strArr) {
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for (String str : strArr)
-            if (strArr.length > 1) {
-                sb.append(prefix);
-                prefix = ", ";
-                sb.append(str.replace(" ", ""));
-            } else {
-                sb.append(str.replace(" ", ""));
-            }
+        if (strArr.length == 0) {
+            return "";
+        }
+        if (strArr.length == 1) {
+            return strArr[0].replace(" ", "");
+        }
+        
+        StringBuilder sb = new StringBuilder(strArr.length * 10);
+        sb.append(strArr[0].replace(" ", ""));
+        for (int i = 1; i < strArr.length; i++) {
+            sb.append(", ").append(strArr[i].replace(" ", ""));
+        }
         return sb.toString();
     }
 
@@ -54,7 +60,7 @@ public class LangManager {
     }
 
     Map<String, String> convertResourceBundleToMap(ResourceBundle resource) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         Enumeration<String> keys = resource.getKeys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
@@ -94,6 +100,7 @@ public class LangManager {
                 if (!lang_plFile.exists()) {
                     chatFilter.saveResource("messages_pl.properties", false);
                 }
+                break;
             case "da":
                 locale = DanishLocale;
                 File lang_daFile = new File(chatFilter.getDataFolder().getAbsolutePath(), "messages_da.properties");

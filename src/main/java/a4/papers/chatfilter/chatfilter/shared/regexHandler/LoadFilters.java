@@ -1,12 +1,13 @@
 package a4.papers.chatfilter.chatfilter.shared.regexHandler;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.bukkit.configuration.ConfigurationSection;
+
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
 import a4.papers.chatfilter.chatfilter.shared.UnicodeWrapper;
-import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class LoadFilters {
 
@@ -155,13 +156,11 @@ public class LoadFilters {
     }
 
     public void regexCompile() {
-        for (String StringMatchedDNS : chatFilter.regexAdvert.keySet()) {
-            Pattern p = Pattern.compile(StringMatchedDNS);
-            chatFilter.advertRegexPattern.add(p);
+        for (String pattern : chatFilter.regexAdvert.keySet()) {
+            chatFilter.advertRegexPattern.add(Pattern.compile(pattern));
         }
-        for (String StringMatchedWords : chatFilter.regexWords.keySet()) {
-            Pattern p = Pattern.compile(StringMatchedWords);
-            chatFilter.wordRegexPattern.add(p);
+        for (String pattern : chatFilter.regexWords.keySet()) {
+            chatFilter.wordRegexPattern.add(Pattern.compile(pattern));
         }
     }
 }

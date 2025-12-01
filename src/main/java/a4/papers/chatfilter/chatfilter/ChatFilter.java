@@ -1,22 +1,13 @@
 package a4.papers.chatfilter.chatfilter;
 
-import a4.papers.chatfilter.chatfilter.commands.ClearChatCommand;
-import a4.papers.chatfilter.chatfilter.commands.CommandHandler;
-import a4.papers.chatfilter.chatfilter.commands.CommandMain;
-import a4.papers.chatfilter.chatfilter.commands.TabComplete;
-import a4.papers.chatfilter.chatfilter.events.*;
-import a4.papers.chatfilter.chatfilter.shared.ChatFilters;
-import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
-import a4.papers.chatfilter.chatfilter.shared.Types;
-import a4.papers.chatfilter.chatfilter.shared.UnicodeWrapper;
-import a4.papers.chatfilter.chatfilter.shared.lang.LangManager;
-import a4.papers.chatfilter.chatfilter.shared.regexHandler.LoadFilters;
-import a4.papers.chatfilter.chatfilter.shared.regexHandler.RegexpGenerator;
-
-import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
-import com.github.Anon8281.universalScheduler.UniversalScheduler;
-
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -33,15 +24,30 @@ import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
+import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
+
+import a4.papers.chatfilter.chatfilter.commands.ClearChatCommand;
+import a4.papers.chatfilter.chatfilter.commands.CommandHandler;
+import a4.papers.chatfilter.chatfilter.commands.CommandMain;
+import a4.papers.chatfilter.chatfilter.commands.TabComplete;
+import a4.papers.chatfilter.chatfilter.events.AnvilListener;
+import a4.papers.chatfilter.chatfilter.events.BooksListener;
+import a4.papers.chatfilter.chatfilter.events.CapsChatListener;
+import a4.papers.chatfilter.chatfilter.events.ChatDelayListener;
+import a4.papers.chatfilter.chatfilter.events.CommandListener;
+import a4.papers.chatfilter.chatfilter.events.PauseChat;
+import a4.papers.chatfilter.chatfilter.events.RepeatCharListener;
+import a4.papers.chatfilter.chatfilter.events.SignListener;
+import a4.papers.chatfilter.chatfilter.events.SwearChatListener;
+import a4.papers.chatfilter.chatfilter.shared.ChatFilters;
+import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
+import a4.papers.chatfilter.chatfilter.shared.Types;
+import a4.papers.chatfilter.chatfilter.shared.UnicodeWrapper;
+import a4.papers.chatfilter.chatfilter.shared.lang.LangManager;
+import a4.papers.chatfilter.chatfilter.shared.regexHandler.LoadFilters;
+import a4.papers.chatfilter.chatfilter.shared.regexHandler.RegexpGenerator;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @SuppressWarnings("deprecation")
 public class ChatFilter extends JavaPlugin {
@@ -115,7 +121,8 @@ public class ChatFilter extends JavaPlugin {
     public String perWordOptionsString;
 
     public Pattern antiSpamPattern;
-    private Integer blockedInt = 1;
+    public Pattern urlPattern;
+    private int blockedInt = 1;
     private File wordConfigFile;
     private File advertConfigFile;
     private File whitelistConfigFile;
@@ -126,6 +133,7 @@ public class ChatFilter extends JavaPlugin {
     private FileConfiguration unicodeConfig;
 
 
+    @Override
     public void onEnable() {
         regexWords = new HashMap<>();
         regexAdvert = new HashMap<>();
@@ -187,12 +195,7 @@ public class ChatFilter extends JavaPlugin {
         metrics.addCustomChart(new Metrics.SimplePie("total_filters", () -> {
             return String.valueOf(regexWords.size() + regexAdvert.size());
         }));
-        metrics.addCustomChart(new Metrics.SingleLineChart("block", new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return blockedInt;
-            }
-        }));
+        metrics.addCustomChart(new Metrics.SingleLineChart("block", () -> blockedInt));
     }
 
     @Override
@@ -244,6 +247,7 @@ public class ChatFilter extends JavaPlugin {
         this.defaultIPCancelReplaceWith = getConfig().getString("default.ip.CancelChat.ReplaceWith");
         this.defaultIPAction = getConfig().getStringList("default.ip.Action");
         this.antiSpamPattern = Pattern.compile("(\\S)\\1{" + getConfig().getInt("antiSpam.aboveAmount") + ",}");
+        this.urlPattern = Pattern.compile(this.URL_REGEX);
         this.perWordOptionsEnable = getConfig().getBoolean("perWordOptions.enabled");
         this.perWordOptionsString = getConfig().getString("perWordOptions.nameOfList");
     }
@@ -295,7 +299,7 @@ public class ChatFilter extends JavaPlugin {
     }
 
     public void sendStaffMessage(String str) {
-        for (Player online : Bukkit.getServer().getOnlinePlayers()) {
+        for (Player online : Bukkit.getOnlinePlayers()) {
             if (online.hasPermission("chatfilter.view")) {
                 online.sendMessage(str);
             }
@@ -304,7 +308,7 @@ public class ChatFilter extends JavaPlugin {
 
     public void sendConsole(Types type, String msg, Player p, String regexUsed, String pl) {
         if (!type.equals(Types.NOTYPE)) {
-            blockedInt = new Integer(blockedInt.intValue() + 1);
+            blockedInt++;
             consoleSender.sendMessage("------- Match Type: " + type.id + " ~ " + pl.toUpperCase());
             consoleSender.sendMessage("Match: " + regexUsed);
             consoleSender.sendMessage("Catch > " + p.getName() + ": " + msg);
