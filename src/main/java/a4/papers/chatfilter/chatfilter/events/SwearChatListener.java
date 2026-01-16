@@ -15,6 +15,8 @@ import a4.papers.chatfilter.chatfilter.shared.LowerCaseReplace;
 import a4.papers.chatfilter.chatfilter.shared.Result;
 import a4.papers.chatfilter.chatfilter.shared.Types;
 import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class SwearChatListener implements EventExecutor, Listener {
 
@@ -41,6 +43,21 @@ public class SwearChatListener implements EventExecutor, Listener {
             return;
         if (chatFilter.chatPause)
             return;
+        // Early check for non-English letters if enabled (after bypass/pause checks)
+        if (chatFilter.settingsBlockCustomSybols) {
+            String rawMessage = ChatColor.stripColor(event.getMessage());
+            if (chatFilter.getChatFilters().containsNonEnglishLetters(rawMessage)) {
+                String deny = "&cYour message was not sent due to containing disallowed characters.";
+                p.sendMessage(chatFilter.colour(deny));
+                try {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(chatFilter.colour(deny)));
+                } catch (Throwable ignored) {
+                    // Fallback silently if actionbar is unavailable
+                }
+                event.setCancelled(true);
+                return;
+            }
+        }
         Result result = chatFilter.getChatFilters().validResult(chatMessage, p);
         if (result.getResult()) {
             Types type = result.getType();

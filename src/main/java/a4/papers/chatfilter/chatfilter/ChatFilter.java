@@ -85,6 +85,7 @@ public class ChatFilter extends JavaPlugin {
     public boolean CommandsOnSwearAndAdvertisesEnabled;
     public boolean settingsAllowURL;
     public boolean settingsBlockFancyChat;
+    public boolean settingsBlockCustomSybols;
     public boolean CommandsOnFontEnabled;
     public boolean deCap;
     public boolean chatPause = false;
@@ -216,6 +217,7 @@ public class ChatFilter extends JavaPlugin {
         this.CommandsOnSwearAndAdvertisesCommand = getConfig().getString("CommandsOnSwearAndAdvertises.command");
         this.settingsAllowURL = getConfig().getBoolean("settings.allowURL");
         this.settingsBlockFancyChat = getConfig().getBoolean("settings.blockFancyChat");
+        this.settingsBlockCustomSybols = getConfig().getBoolean("settings.blockCustomSybols");
         this.settingsSwearHighLight = getConfig().getString("settings.swearHighLight");
         this.cmdCheck = getConfig().getBoolean("checkCommands");
         this.capsAmount = getConfig().getInt("settings.capsAmount");

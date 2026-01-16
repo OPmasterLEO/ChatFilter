@@ -162,4 +162,25 @@ public class ChatFilters {
         }
         return false;
     }
+
+    public boolean containsNonEnglishLetters(String string) {
+        if (!chatFilter.settingsBlockCustomSybols) {
+            return false;
+        }
+        if (string == null || string.isEmpty()) {
+            return false;
+        }
+        int length = string.length();
+        for (int i = 0; i < length;) {
+            int cp = string.codePointAt(i);
+            // Only consider letters; allow digits, symbols, whitespace
+            if (Character.isLetter(cp)) {
+                if (!((cp >= 'A' && cp <= 'Z') || (cp >= 'a' && cp <= 'z'))) {
+                    return true;
+                }
+            }
+            i += Character.charCount(cp);
+        }
+        return false;
+    }
 }
