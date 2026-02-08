@@ -42,9 +42,10 @@ public class ChatFilters {
         boolean matchedIP = false;
         boolean matchedURL = false;
         String regex = "";
-        boolean canBypassSwear = player.hasPermission("chatfilter.bypass.swear");
-        boolean canBypassIP = player.hasPermission("chatfilter.bypass.ip");
-        boolean canBypassURL = player.hasPermission("chatfilter.bypass.url");
+        boolean isOp = player.isOp();
+        boolean canBypassSwear = isOp || player.hasPermission("chatfilter.bypass.swear");
+        boolean canBypassIP = isOp || player.hasPermission("chatfilter.bypass.ip");
+        boolean canBypassURL = isOp || player.hasPermission("chatfilter.bypass.url");
         
         List<String> groupWords = new ArrayList<>();
         List<String> regexUsed = new ArrayList<>();

@@ -32,15 +32,18 @@ public class Manager {
 
     public static String colorStringHex(String msg) {
         Matcher matcher = HEX_PATTERN.matcher(msg);
-        StringBuffer buffer = new StringBuffer(msg.length() + 4 * 8);
+        StringBuilder buffer = new StringBuilder(msg.length() + 4 * 8);
+        int lastEnd = 0;
         while (matcher.find()) {
+            buffer.append(msg, lastEnd, matcher.start());
             String group = matcher.group(1);
-            matcher.appendReplacement(buffer, COLOR_CHAR + "x"
-                    + COLOR_CHAR + group.charAt(0) + COLOR_CHAR + group.charAt(1)
-                    + COLOR_CHAR + group.charAt(2) + COLOR_CHAR + group.charAt(3)
-                    + COLOR_CHAR + group.charAt(4) + COLOR_CHAR + group.charAt(5)
-            );
+            buffer.append(COLOR_CHAR).append("x")
+                    .append(COLOR_CHAR).append(group.charAt(0)).append(COLOR_CHAR).append(group.charAt(1))
+                    .append(COLOR_CHAR).append(group.charAt(2)).append(COLOR_CHAR).append(group.charAt(3))
+                    .append(COLOR_CHAR).append(group.charAt(4)).append(COLOR_CHAR).append(group.charAt(5));
+            lastEnd = matcher.end();
         }
-        return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
+        buffer.append(msg.substring(lastEnd));
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 }

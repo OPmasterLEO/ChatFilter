@@ -1,6 +1,5 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.ChatData;
 import a4.papers.chatfilter.chatfilter.shared.StringSimilarity;
@@ -47,7 +46,7 @@ public class ChatDelayListener implements EventExecutor, Listener {
         }
         
         Player p = e.getPlayer();
-        if (p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.repeat")) {
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.repeat")) {
             return;
         }
         

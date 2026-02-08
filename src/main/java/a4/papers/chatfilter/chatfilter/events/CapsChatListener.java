@@ -26,7 +26,8 @@ public class CapsChatListener implements EventExecutor, Listener {
     public void onPlayerCaps(AsyncPlayerChatEvent event) {
         String msg = event.getMessage();
         if (chatFilter.deCap) {
-            if (event.getPlayer().hasPermission("chatfilter.bypass") || event.getPlayer().hasPermission("chatfilter.bypass.caps"))
+            Player player = event.getPlayer();
+            if (player.isOp() || player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.bypass.caps"))
                 return;
             if (isURL(msg))
                 return;
@@ -39,11 +40,11 @@ public class CapsChatListener implements EventExecutor, Listener {
                 msg = msg.charAt(0) + msg.substring(1).toLowerCase();
             }
             String newmsg = msg;
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                String player = p.getName();
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                String playerName = onlinePlayer.getName();
 
-                if (msg.toLowerCase().contains(player.toLowerCase())) {
-                    newmsg = newmsg.replace(player.toLowerCase(), player);
+                if (msg.toLowerCase().contains(playerName.toLowerCase())) {
+                    newmsg = newmsg.replace(playerName.toLowerCase(), playerName);
                 }
             }
             event.setMessage(newmsg);

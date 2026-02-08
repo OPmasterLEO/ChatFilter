@@ -1,6 +1,5 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -37,7 +36,7 @@ public class SwearChatListener implements EventExecutor, Listener {
         String chatMessage = ChatColor.stripColor(event.getMessage()).toLowerCase();
         String prefix = "";
         String warnPlayerMessage =  "";
-        if (p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.chat"))
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.chat"))
             return;
         if (event.isCancelled())
             return;

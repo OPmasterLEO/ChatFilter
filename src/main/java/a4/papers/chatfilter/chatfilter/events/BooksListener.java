@@ -33,7 +33,7 @@ public class BooksListener implements EventExecutor, Listener {
 
     public void onBookEvent(PlayerEditBookEvent event) {
         Player p = event.getPlayer();
-        if (event.getPlayer().hasPermission("chatfilter.bypass") || event.getPlayer().hasPermission("chatfilter.bypass.book"))
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.book"))
             return;
         List<String> catchMatch = new ArrayList<>();
         List<String> bookPageMatch = new ArrayList<>();

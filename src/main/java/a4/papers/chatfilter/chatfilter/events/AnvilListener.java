@@ -33,12 +33,14 @@ public class AnvilListener implements EventExecutor, Listener {
     }
 
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getWhoClicked().hasPermission("chatfilter.bypass") || event.getWhoClicked().hasPermission("chatfilter.bypass.anvil"))
+        HumanEntity ent = event.getWhoClicked();
+        if (!(ent instanceof Player)) {
+            return;
+        }
+        Player p = (Player) ent;
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.anvil"))
             return;
         if (!event.isCancelled()) {
-            HumanEntity ent = event.getWhoClicked();
-            if (ent instanceof Player) {
-                Player p = (Player) ent;
                 Inventory inv = event.getInventory();
                 if (inv instanceof AnvilInventory) {
                     InventoryView view = event.getView();
@@ -98,7 +100,6 @@ public class AnvilListener implements EventExecutor, Listener {
                         }
                     }
                 }
-            }
         }
     }
 }

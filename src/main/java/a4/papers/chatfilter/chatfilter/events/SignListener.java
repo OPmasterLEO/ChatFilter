@@ -30,7 +30,7 @@ public class SignListener implements EventExecutor, Listener {
 
     public void onSignEvent(SignChangeEvent event) {
         Player p = event.getPlayer();
-        if (p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.sign")) {
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.sign")) {
             return;
         }
         boolean broken = false;

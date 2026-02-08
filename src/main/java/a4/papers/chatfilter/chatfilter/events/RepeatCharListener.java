@@ -24,7 +24,8 @@ public class RepeatCharListener implements EventExecutor, Listener {
     public void onPlayerCarSpam(AsyncPlayerChatEvent event) {
         String msg = event.getMessage();
         if (chatFilter.antiSpamEnabled) {
-            if (event.getPlayer().hasPermission("chatfilter.bypass") || event.getPlayer().hasPermission("chatfilter.bypass.characters")) {
+            org.bukkit.entity.Player player = event.getPlayer();
+            if (player.isOp() || player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.bypass.characters")) {
                 return;
             }
             if (isURL(msg)) {

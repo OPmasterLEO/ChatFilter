@@ -1,6 +1,5 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -30,7 +29,7 @@ public class PauseChat implements EventExecutor, Listener {
             return;
         
         Player player = event.getPlayer();
-        if (player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.pause") || player.hasPermission("chatfilter.bypass.pause")) {
+        if (player.isOp() || player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.pause") || player.hasPermission("chatfilter.bypass.pause")) {
             return;
         }
         

@@ -1,6 +1,5 @@
 package a4.papers.chatfilter.chatfilter.events;
 
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -29,7 +28,7 @@ public class CommandListener implements EventExecutor, Listener {
 
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         Player p = event.getPlayer();
-        if (p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.command"))
+        if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.command"))
             return;
         if (event.isCancelled() || !chatFilter.cmdCheck)
             return;

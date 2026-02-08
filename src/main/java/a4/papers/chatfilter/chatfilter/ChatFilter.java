@@ -256,11 +256,11 @@ public class ChatFilter extends JavaPlugin {
 
     public String colour(String s) {
         if (manager.supported("hex")) {
-            return Manager.colorStringHex(s);
+            String result = Manager.colorStringHex(s);
+            return result;
         } else {
-            return LEGACY_SERIALIZER.serialize(
-                    LEGACY_SERIALIZER.deserialize(s)
-            );
+            String deserialized = LEGACY_SERIALIZER.serialize(LEGACY_SERIALIZER.deserialize(s));
+            return deserialized;
         }
     }
 
