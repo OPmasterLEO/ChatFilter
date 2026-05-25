@@ -120,6 +120,7 @@ public class ChatFilter extends JavaPlugin {
     public String cancelChatReplace;
     public String URL_REGEX;
     public String perWordOptionsString;
+    private String antiSpamReplacementToken = "$1";
 
     public Pattern antiSpamPattern;
     public Pattern urlPattern;
@@ -201,6 +202,15 @@ public class ChatFilter extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getScheduler().cancelTasks(this);
+        scheduler = null;
+        instance = null;
+        wordRegexPattern.clear();
+        advertRegexPattern.clear();
+        regexWords.clear();
+        regexAdvert.clear();
+        unicodeBlacklist.clear();
+        unicodeWhitelist.clear();
         saveDefaultConfig();
     }
 
@@ -230,6 +240,8 @@ public class ChatFilter extends JavaPlugin {
         this.enableLeetSpeak = getConfig().getBoolean("enableLeetSpeak");
         this.antiSpamEnabled = getConfig().getBoolean("antiSpam.enable");
         this.antiSpamReplaceAmount = getConfig().getInt("antiSpam.replaceAmount");
+        int safeRepeatAmount = Math.max(1, this.antiSpamReplaceAmount);
+        this.antiSpamReplacementToken = "$1".repeat(safeRepeatAmount);
 
         this.repeatDelay = getConfig().getInt("settings.repeatDelay");
         this.defaultWordEnabled = getConfig().getBoolean("default.word.Enabled");
@@ -401,5 +413,9 @@ public class ChatFilter extends JavaPlugin {
 
     public static TaskScheduler getScheduler() {
         return scheduler;
+    }
+
+    public String getAntiSpamReplacementToken() {
+        return antiSpamReplacementToken;
     }
 }

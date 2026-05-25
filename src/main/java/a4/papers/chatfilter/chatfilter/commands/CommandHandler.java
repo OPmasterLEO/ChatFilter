@@ -4,7 +4,6 @@ import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class CommandHandler {
     ChatFilter chatFilter;
@@ -22,12 +21,8 @@ public class CommandHandler {
                         p.sendMessage(chatFilter.colour(s.replace("<SendMessage>", "").replace("%player%", p.getName()).replace("%item%", firstWord)));
                     }
                     if (s.contains("<RunCommand>")) {
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), s.replace("<RunCommand>", "").replace("%player%", p.getName()).replace("%item%", firstWord));
-                            }
-                        }.runTask(chatFilter);
+                        String command = s.replace("<RunCommand>", "").replace("%player%", p.getName()).replace("%item%", firstWord);
+                        Bukkit.getScheduler().runTask(chatFilter, () -> Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command));
                     }
                 }
             }

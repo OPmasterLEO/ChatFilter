@@ -1,11 +1,11 @@
 plugins {
     java
-    id("com.gradleup.shadow") version "9.3.1"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+    id("com.gradleup.shadow") version "9.4.1"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
 }
 
 group = "a4.papers.chatfilter"
-version = "2.0.15"
+version = "2.1.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21

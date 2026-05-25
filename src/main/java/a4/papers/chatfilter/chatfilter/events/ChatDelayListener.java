@@ -10,28 +10,47 @@ import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatDelayListener implements EventExecutor, Listener {
-    public Map<UUID, ChatData> chatmsgs = new HashMap<UUID, ChatData>();
+    private static final int CLEANUP_INTERVAL = 256;
+    public final Map<UUID, ChatData> chatmsgs = new ConcurrentHashMap<>();
     ChatFilter chatFilter;
-    private BigDecimal similarityThreshold;
+    private Double similarityThreshold;
+    private int cleanupCounter;
 
     public ChatDelayListener(ChatFilter instance) {
         chatFilter = instance;
     }
     
-    private BigDecimal getSimilarityThreshold() {
+    private double getSimilarityThreshold() {
         if (similarityThreshold == null) {
             String percent = chatFilter.percentage.trim().replace("%", "");
-            similarityThreshold = new BigDecimal(percent).divide(BigDecimal.valueOf(100));
+            similarityThreshold = new BigDecimal(percent).divide(BigDecimal.valueOf(100)).doubleValue();
         }
         return similarityThreshold;
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        chatmsgs.remove(event.getPlayer().getUniqueId());
+    }
+
+    private void pruneExpiredEntries(long now) {
+        Iterator<Map.Entry<UUID, ChatData>> iterator = chatmsgs.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, ChatData> entry = iterator.next();
+            if (entry.getValue().getLong() <= now) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -54,6 +73,10 @@ public class ChatDelayListener implements EventExecutor, Listener {
         String msg = e.getMessage();
         long currentTime = System.currentTimeMillis();
         long configtime = chatFilter.repeatDelay * 1000L;
+
+        if ((++cleanupCounter & (CLEANUP_INTERVAL - 1)) == 0) {
+            pruneExpiredEntries(currentTime);
+        }
         
         ChatData chatData = chatmsgs.get(playerUUID);
         if (chatData == null) {
@@ -64,7 +87,7 @@ public class ChatDelayListener implements EventExecutor, Listener {
         long expiryTime = chatData.getLong();
         double sim = StringSimilarity.similarity(msg, chatData.getString());
         
-        if (sim > getSimilarityThreshold().doubleValue()) {
+        if (sim > getSimilarityThreshold()) {
             if (expiryTime > currentTime) {
                 e.setCancelled(true);
                 long remainingMs = expiryTime - currentTime;

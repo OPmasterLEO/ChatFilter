@@ -31,7 +31,7 @@ public class RepeatCharListener implements EventExecutor, Listener {
             if (isURL(msg)) {
                 return;
             }
-            event.setMessage(chatFilter.antiSpamPattern.matcher(msg).replaceAll(new String(new char[chatFilter.antiSpamReplaceAmount]).replace("\0", "$1")));
+            event.setMessage(chatFilter.antiSpamPattern.matcher(msg).replaceAll(chatFilter.getAntiSpamReplacementToken()));
         }
     }
 

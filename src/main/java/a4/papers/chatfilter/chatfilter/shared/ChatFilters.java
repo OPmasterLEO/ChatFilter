@@ -2,9 +2,9 @@ package a4.papers.chatfilter.chatfilter.shared;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 
 public class ChatFilters {
+
+    private static final FilterWrapper URL_FILTER = new FilterWrapper("URL", Collections.singletonList("none"), "URL", true, false, "", false, true, false);
+    private static final FilterWrapper FONT_FILTER = new FilterWrapper("unicode", Collections.singletonList("none"), "unicode", true, false, "", true, true, true);
 
     ChatFilter chatFilter;
 
@@ -41,13 +44,14 @@ public class ChatFilters {
         boolean matchedSwear = false;
         boolean matchedIP = false;
         boolean matchedURL = false;
-        String regex = "";
+        String regex = null;
+        FilterWrapper matchedWrapper = null;
         boolean isOp = player.isOp();
         boolean canBypassSwear = isOp || player.hasPermission("chatfilter.bypass.swear");
         boolean canBypassIP = isOp || player.hasPermission("chatfilter.bypass.ip");
         boolean canBypassURL = isOp || player.hasPermission("chatfilter.bypass.url");
         
-        List<String> groupWords = new ArrayList<>();
+        Set<String> groupWords = new LinkedHashSet<>();
         List<String> regexUsed = new ArrayList<>();
         
         // Check swear words
@@ -60,10 +64,9 @@ public class ChatFilters {
                         matched = true;
                         matchedSwear = true;
                         regex = p.pattern();
+                        matchedWrapper = chatFilter.regexWords.get(regex);
                         regexUsed.add(regex);
-                        if (!groupWords.contains(match)) {
-                            groupWords.add(match);
-                        }
+                        groupWords.add(match);
                     }
                 }
             }
@@ -78,16 +81,12 @@ public class ChatFilters {
                         matched = true;
                         matchedIP = true;
                         regex = p.pattern();
-                        if (!groupWords.contains(match)) {
-                            groupWords.add(match);
-                        }
+                        matchedWrapper = chatFilter.regexAdvert.get(regex);
+                        groupWords.add(match);
                     }
                 }
             }
         }
-
-        // Build regex map only when needed
-        Map<String, FilterWrapper> regexMap = new HashMap<>();
         
         // Check URL
         if (!canBypassURL && !chatFilter.settingsAllowURL) {
@@ -96,7 +95,9 @@ public class ChatFilters {
                 matched = true;
                 matchedURL = true;
                 regex = chatFilter.URL_REGEX;
-                regexMap.put(chatFilter.URL_REGEX, new FilterWrapper("URL", Collections.singletonList("none"), chatFilter.URL_REGEX, true, false, "", false, true, false));
+                if (matchedWrapper == null) {
+                    matchedWrapper = URL_FILTER;
+                }
             }
         }
 
@@ -104,7 +105,9 @@ public class ChatFilters {
         if (isFont(string)) {
             matched = true;
             regex = "unicode";
-            regexMap.put("unicode", new FilterWrapper("unicode", Collections.singletonList("none"), "unicode", true, false, "", true, true, true));
+            if (matchedWrapper == null) {
+                matchedWrapper = FONT_FILTER;
+            }
         }
         
         // Determine type
@@ -123,10 +126,14 @@ public class ChatFilters {
             type = Types.NOTYPE;
         }
 
-        String[] array = groupWords.toArray(new String[groupWords.size()]);
-        regexMap.putAll(chatFilter.regexWords);
-        regexMap.putAll(chatFilter.regexAdvert);
-        return new Result(matched, array, type, regexMap.get(regex), regexUsed);
+        String[] array = groupWords.toArray(new String[0]);
+        if (matchedWrapper == null && regex != null) {
+            matchedWrapper = chatFilter.regexWords.get(regex);
+            if (matchedWrapper == null) {
+                matchedWrapper = chatFilter.regexAdvert.get(regex);
+            }
+        }
+        return new Result(matched, array, type, matchedWrapper, regexUsed);
     }
 
     public boolean isFont(String string) {

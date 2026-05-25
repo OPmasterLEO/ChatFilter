@@ -24,11 +24,13 @@ public class ReloadCommand implements CommandExecutor {
                     chatFilter.saveConfig();
                     chatFilter.byPassWords.clear();
                     chatFilter.byPassDNS.clear();
-                    chatFilter.regexWords.clear();
-                    chatFilter.regexAdvert.clear();
+                    chatFilter.wordRegexPattern.clear();
+                    chatFilter.advertRegexPattern.clear();
+                    chatFilter.unicodeBlacklist.clear();
+                    chatFilter.unicodeWhitelist.clear();
                     chatFilter.reloadConfigs();
-                    chatFilter.getFilters().loadAdvertFilter();
-                    chatFilter.getFilters().loadWordFilter();
+                    chatFilter.getFilters().reloadFilters();
+                    chatFilter.getFilters().loadUnicodeFilter();
                     chatFilter.byPassWords = chatFilter.getWhitelistConfig().getStringList("bypassWords");
                     chatFilter.byPassDNS = chatFilter.getWhitelistConfig().getStringList("bypassIP");
                     chatFilter.loadVariables();
