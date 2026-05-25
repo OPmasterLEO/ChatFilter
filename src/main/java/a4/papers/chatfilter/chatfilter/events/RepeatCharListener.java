@@ -3,8 +3,8 @@ package a4.papers.chatfilter.chatfilter.events;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+import io.papermc.paper.event.player.AsyncChatEvent;
 
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 
@@ -18,11 +18,11 @@ public class RepeatCharListener implements EventExecutor, Listener {
 
     @Override
     public void execute(final Listener listener, final Event event) throws EventException {
-        this.onPlayerCarSpam((AsyncPlayerChatEvent) event);
+        this.onPlayerCarSpam((AsyncChatEvent) event);
     }
 
-    public void onPlayerCarSpam(AsyncPlayerChatEvent event) {
-        String msg = event.getMessage();
+    public void onPlayerCarSpam(AsyncChatEvent event) {
+        String msg = chatFilter.plainMessage(event);
         if (chatFilter.antiSpamEnabled) {
             org.bukkit.entity.Player player = event.getPlayer();
             if (player.isOp() || player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.bypass.characters")) {
@@ -31,7 +31,7 @@ public class RepeatCharListener implements EventExecutor, Listener {
             if (isURL(msg)) {
                 return;
             }
-            event.setMessage(chatFilter.antiSpamPattern.matcher(msg).replaceAll(chatFilter.getAntiSpamReplacementToken()));
+            chatFilter.setPlainMessage(event, chatFilter.antiSpamPattern.matcher(msg).replaceAll(chatFilter.getAntiSpamReplacementToken()));
         }
     }
 

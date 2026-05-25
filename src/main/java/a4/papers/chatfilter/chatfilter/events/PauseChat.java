@@ -6,8 +6,8 @@ import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+import io.papermc.paper.event.player.AsyncChatEvent;
 
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.lang.EnumStrings;
@@ -20,11 +20,11 @@ public class PauseChat implements EventExecutor, Listener {
     }
     @Override
     public void execute(final Listener listener, final Event event) throws EventException {
-        this.onPlayerChatPause((AsyncPlayerChatEvent) event);
+        this.onPlayerChatPause((AsyncChatEvent) event);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerChatPause(AsyncPlayerChatEvent event) {
+    public void onPlayerChatPause(AsyncChatEvent event) {
         if (event.isCancelled() || !chatFilter.chatPause)
             return;
         
@@ -35,7 +35,7 @@ public class PauseChat implements EventExecutor, Listener {
         
         event.setCancelled(true);
         player.sendMessage(chatFilter.colour(chatFilter.getLang().mapToString(EnumStrings.denyMessagePause.s)));
-        chatFilter.logMsg("[Chat filter] (Paused chat) " + player.getDisplayName() + ": " + event.getMessage());
+        chatFilter.logMsg("[Chat filter] (Paused chat) " + player.getDisplayName() + ": " + chatFilter.plainMessage(event));
     }
 
 }

@@ -9,9 +9,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
+import io.papermc.paper.event.player.AsyncChatEvent;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
@@ -21,6 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatDelayListener implements EventExecutor, Listener {
     private static final int CLEANUP_INTERVAL = 256;
+    static {
+        if ((CLEANUP_INTERVAL & (CLEANUP_INTERVAL - 1)) != 0) {
+            throw new IllegalStateException("CLEANUP_INTERVAL must be a power of 2");
+        }
+    }
     public final Map<UUID, ChatData> chatmsgs = new ConcurrentHashMap<>();
     ChatFilter chatFilter;
     private Double similarityThreshold;
@@ -55,11 +60,11 @@ public class ChatDelayListener implements EventExecutor, Listener {
 
     @Override
     public void execute(final Listener listener, final Event event) throws EventException {
-        this.onPlayerSpam((AsyncPlayerChatEvent) event);
+        this.onPlayerSpam((AsyncChatEvent) event);
     }
 
     @EventHandler
-    public void onPlayerSpam(AsyncPlayerChatEvent e) {
+    public void onPlayerSpam(AsyncChatEvent e) {
         if (!chatFilter.antiRepeatEnabled) {
             return;
         }
@@ -70,7 +75,7 @@ public class ChatDelayListener implements EventExecutor, Listener {
         }
         
         UUID playerUUID = p.getUniqueId();
-        String msg = e.getMessage();
+        String msg = chatFilter.plainMessage(e);
         long currentTime = System.currentTimeMillis();
         long configtime = chatFilter.repeatDelay * 1000L;
 

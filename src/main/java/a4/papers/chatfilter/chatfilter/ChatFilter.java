@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -18,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.plugin.PluginManager;
@@ -47,6 +48,7 @@ import a4.papers.chatfilter.chatfilter.shared.UnicodeWrapper;
 import a4.papers.chatfilter.chatfilter.shared.lang.LangManager;
 import a4.papers.chatfilter.chatfilter.shared.regexHandler.LoadFilters;
 import a4.papers.chatfilter.chatfilter.shared.regexHandler.RegexpGenerator;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @SuppressWarnings("deprecation")
@@ -55,6 +57,7 @@ public class ChatFilter extends JavaPlugin {
     private static TaskScheduler scheduler;
     private static ChatFilter instance;
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
+    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
 
     public ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
     public ChatFilter chatFilter;
@@ -171,15 +174,15 @@ public class ChatFilter extends JavaPlugin {
         PauseChat pc = new PauseChat(this);
         CommandListener cl = new CommandListener(this);
         RepeatCharListener rcl = new RepeatCharListener(this);
-        pm.registerEvent(AsyncPlayerChatEvent.class, scl, EventPriority.valueOf(getConfig().getString("EventPriority.SwearListener")), scl, this, true);
-        pm.registerEvent(AsyncPlayerChatEvent.class, ccl, EventPriority.valueOf(getConfig().getString("EventPriority.CapsListener")), ccl, this, true);
+        pm.registerEvent(AsyncChatEvent.class, scl, EventPriority.valueOf(getConfig().getString("EventPriority.SwearListener")), scl, this, true);
+        pm.registerEvent(AsyncChatEvent.class, ccl, EventPriority.valueOf(getConfig().getString("EventPriority.CapsListener")), ccl, this, true);
         pm.registerEvent(PlayerEditBookEvent.class, bl, EventPriority.valueOf(getConfig().getString("EventPriority.BookListener")), bl, this, true);
         pm.registerEvent(SignChangeEvent.class, sl, EventPriority.valueOf(getConfig().getString("EventPriority.SignListener")), sl, this, true);
         pm.registerEvent(InventoryClickEvent.class, al, EventPriority.valueOf(getConfig().getString("EventPriority.AdvilListener")), al, this, true);
-        pm.registerEvent(AsyncPlayerChatEvent.class, cdl, EventPriority.valueOf(getConfig().getString("EventPriority.ChatDelayListener")), cdl, this, true);
-        pm.registerEvent(AsyncPlayerChatEvent.class, pc, EventPriority.valueOf(getConfig().getString("EventPriority.PauseChatListener")), pc, this, true);
+        pm.registerEvent(AsyncChatEvent.class, cdl, EventPriority.valueOf(getConfig().getString("EventPriority.ChatDelayListener")), cdl, this, true);
+        pm.registerEvent(AsyncChatEvent.class, pc, EventPriority.valueOf(getConfig().getString("EventPriority.PauseChatListener")), pc, this, true);
         pm.registerEvent(PlayerCommandPreprocessEvent.class, cl, EventPriority.valueOf(getConfig().getString("EventPriority.CommandListener")), cl, this, true);
-        pm.registerEvent(AsyncPlayerChatEvent.class, rcl, EventPriority.valueOf(getConfig().getString("EventPriority.RepeatCharListener")), rcl, this, true);
+        pm.registerEvent(AsyncChatEvent.class, rcl, EventPriority.valueOf(getConfig().getString("EventPriority.RepeatCharListener")), rcl, this, true);
         saveDefaultConfig();
         getFilters().loadWordFilter();
         getFilters().loadAdvertFilter();
@@ -417,5 +420,13 @@ public class ChatFilter extends JavaPlugin {
 
     public String getAntiSpamReplacementToken() {
         return antiSpamReplacementToken;
+    }
+
+    public String plainMessage(AsyncChatEvent event) {
+        return PLAIN_TEXT_SERIALIZER.serialize(event.message());
+    }
+
+    public void setPlainMessage(AsyncChatEvent event, String message) {
+        event.message(Component.text(message));
     }
 }

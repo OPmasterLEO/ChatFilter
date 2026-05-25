@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+import io.papermc.paper.event.player.AsyncChatEvent;
 
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 import a4.papers.chatfilter.chatfilter.shared.FilterWrapper;
@@ -27,13 +27,14 @@ public class SwearChatListener implements EventExecutor, Listener {
 
     @Override
     public void execute(final Listener listener, final Event event) throws EventException {
-        this.onPlayerSwear((AsyncPlayerChatEvent) event);
+        this.onPlayerSwear((AsyncChatEvent) event);
     }
 
 
-    public void onPlayerSwear(AsyncPlayerChatEvent event) {
+    public void onPlayerSwear(AsyncChatEvent event) {
         Player p = event.getPlayer();
-        String chatMessage = ChatColor.stripColor(event.getMessage()).toLowerCase();
+        String rawMessage = chatFilter.plainMessage(event);
+        String chatMessage = ChatColor.stripColor(rawMessage).toLowerCase();
         String prefix = "";
         String warnPlayerMessage =  "";
         if (p.isOp() || p.hasPermission("chatfilter.bypass") || p.hasPermission("chatfilter.bypass.chat"))
@@ -44,8 +45,8 @@ public class SwearChatListener implements EventExecutor, Listener {
             return;
         // Early check for non-English letters if enabled (after bypass/pause checks)
         if (chatFilter.settingsBlockCustomSybols) {
-            String rawMessage = ChatColor.stripColor(event.getMessage());
-            if (chatFilter.getChatFilters().containsNonEnglishLetters(rawMessage)) {
+            String strippedRawMessage = ChatColor.stripColor(rawMessage);
+            if (chatFilter.getChatFilters().containsNonEnglishLetters(strippedRawMessage)) {
                 String deny = "&cYour message was not sent due to containing disallowed characters.";
                 p.sendMessage(chatFilter.colour(deny));
                 try {
@@ -101,13 +102,13 @@ public class SwearChatListener implements EventExecutor, Listener {
             if (filterWrapper.getCancelChat()) {
                 event.setCancelled(true);
             } else {
-                String msg = event.getMessage();
+                String msg = rawMessage;
                 for (String oneWord : stringArray) {
                     if (filterWrapper.getCancelChatReplace()) {
                        msg = LowerCaseReplace.replace(msg, oneWord, filterWrapper.getReplace());
                     }
                 }
-                event.setMessage(msg);
+                chatFilter.setPlainMessage(event, msg);
             }
         }
     }

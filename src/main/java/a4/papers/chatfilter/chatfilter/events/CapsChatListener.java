@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
+import io.papermc.paper.event.player.AsyncChatEvent;
 
 import a4.papers.chatfilter.chatfilter.ChatFilter;
 
@@ -20,11 +20,11 @@ public class CapsChatListener implements EventExecutor, Listener {
 
     @Override
     public void execute(final Listener listener, final Event event) throws EventException {
-        this.onPlayerCaps((AsyncPlayerChatEvent) event);
+        this.onPlayerCaps((AsyncChatEvent) event);
     }
 
-    public void onPlayerCaps(AsyncPlayerChatEvent event) {
-        String msg = event.getMessage();
+    public void onPlayerCaps(AsyncChatEvent event) {
+        String msg = chatFilter.plainMessage(event);
         if (chatFilter.deCap) {
             Player player = event.getPlayer();
             if (player.isOp() || player.hasPermission("chatfilter.bypass") || player.hasPermission("chatfilter.bypass.caps"))
@@ -47,7 +47,7 @@ public class CapsChatListener implements EventExecutor, Listener {
                     newmsg = newmsg.replace(playerName.toLowerCase(), playerName);
                 }
             }
-            event.setMessage(newmsg);
+            chatFilter.setPlainMessage(event, newmsg);
         }
     }
 
